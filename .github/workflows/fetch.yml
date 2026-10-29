@@ -1,0 +1,19 @@
+name: tmp-fetch
+on:
+  push:
+    branches: [tmp-vo-transfer]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: tmp-vo-transfer }
+      - run: |
+          if [ -f vo/take1.mp3 ]; then exit 0; fi
+          mkdir -p vo
+          i=1; while read -r u; do [ -n "$u" ] && curl -sSfL -o vo/take$i.mp3 "$u"; i=$((i+1)); done < urls.txt
+          ls -la vo
+          git config user.name tmp && git config user.email tmp@users.noreply.github.com
+          git add vo && git commit -m "vo" && git push
